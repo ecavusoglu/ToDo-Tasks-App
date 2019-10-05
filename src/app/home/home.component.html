@@ -1,0 +1,33 @@
+<div class="row content-container" style="width: 100%;">
+  <div class="col-lg-3">
+    <div class="card ml-3 mt-5 border-0">
+      <div class="nav flex-column nav-pills bg-white m-t-30 m-r-10" id="suppliers-navigation" role="tablist" aria-orientation="vertical" style="font-size: 13px;">
+        <a [ngClass]="{'nav-link p-l-20': true, 'active bg-light text-dark': selectedSupplierTab(0)}" class="m-l-10 m-b-30" href="javascript:void(0)" (click)="activeTab=0" style="font-size: 20px;"> <i class="material-icons" style="font-size: 20px;">calendar_today</i> Today</a>
+        <a [ngClass]="{'nav-link p-l-20': true, 'active bg-light text-dark': selectedSupplierTab(1)}" class="m-l-10 m-b-30" href="javascript:void(0)" (click)="activeTab=1" style="font-size: 20px;"> <i class="material-icons" style="font-size: 20px;">filter_7</i> This week</a>
+      </div>
+      <hr>
+    </div>
+    <div class=" ml-5 mt-3">
+      <h5 class="text-primary">Filter</h5>
+      <div>
+        <div class="round d-inline ml-3">
+          <input type="checkbox" id="finished-tasks" (change)="filterFinished($event)"/>
+          <label for="finished-tasks"></label>
+          <p class="d-inline ml-3">Finished tasks</p>
+        </div>
+      </div>
+      <div class="mt-2">
+        <div class="round d-inline ml-3">
+          <input type="checkbox" id="unfinished-tasks" (change)="filterUnfinished($event)"/>
+          <label for="unfinished-tasks"></label>
+          <p class="d-inline ml-3">Unfinished tasks</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-9 border-left">
+    <app-today *ngIf="selectedSupplierTab(0)" [todayTasks]="todayTasks" [filterDone]="filterDone" [filterUndone]="filterUndone" (taskAdded)="onDailyTaskAdded($event)"></app-today>
+    <app-weekly *ngIf="selectedSupplierTab(1)" [weeklyTasks]="weeklyTasks" [filterDone]="filterDone" [filterUndone]="filterUndone" (taskAdded)="onWeeklyTaskAdded($event)"></app-weekly>
+  </div>
+</div>
+

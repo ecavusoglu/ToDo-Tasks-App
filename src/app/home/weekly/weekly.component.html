@@ -1,0 +1,109 @@
+<div>
+  <h4 class="text-primary ml-5 mt-3">This Week's Tasks</h4>
+  <hr>
+  <div *ngIf="weeklyTasks.length === 0 && !addTaskMode">
+    <p class="font-italic">You do not have any tasks for this week!</p>
+  </div>
+  <div *ngIf="!editTaskMode && !addTaskMode">
+    <div *ngIf="!filterOption">
+      <div *ngFor="let task of weeklyTasks; let i = index;" class="mb-4" (mouseenter)="setActive(i)" (mouseleave)="setInactive(i)">
+        <p class="font-weight-bold">{{task.date}}</p>
+        <div class="round d-inline">
+          <input type="checkbox" id="week-{{i}}" checked="{{task.finished}}" (change)="onCheck($event, task)"/>
+          <label for="week-{{i}}"></label>
+          <p class="d-inline ml-3">{{task.description}}</p>
+          <button *ngIf="activeRow[i]" class="d-inline btn btn-danger btn-sm float-right ml-2" (click)="openModal(deleteTaskModal, task)"><i class="material-icons" style="font-size: 14px;">delete_forever</i></button>
+          <button *ngIf="activeRow[i]" class="d-inline btn btn-primary btn-sm float-right" (click)="editTaskClicked(task)"><i class="material-icons" style="font-size: 14px;">edit</i></button>
+        </div>
+      </div>
+      <button class="btn btn-primary mt-2" (click)="addTaskMode = true"><i class="material-icons" style="font-size: 14px;">add_circle_outline</i> Add task</button>
+    </div>
+    <div *ngIf="filterOption">
+      <div *ngFor="let task of filteredTasks; let i = index;" class="mb-4" (mouseenter)="setActive(i)" (mouseleave)="setInactive(i)">
+        <p class="font-weight-bold">{{task.date}}</p>
+        <div class="round d-inline">
+          <input type="checkbox" id="week-{{i}}" checked="{{task.finished}}" (change)="onCheck($event, task)"/>
+          <label for="week-{{i}}"></label>
+          <p class="d-inline ml-3">{{task.description}}</p>
+          <button *ngIf="activeRow[i]" class="d-inline btn btn-danger btn-sm float-right ml-2" (click)="openModal(deleteTaskModal, task)"><i class="material-icons" style="font-size: 14px;">delete_forever</i></button>
+          <button *ngIf="activeRow[i]" class="d-inline btn btn-primary btn-sm float-right" (click)="editTaskClicked(task)"><i class="material-icons" style="font-size: 14px;">edit</i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="addTaskMode" class="mt-2">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="modal-title text-dark font-weight-bold">Add Task</h6>
+        <button type="button" class="close" aria-label="Close" (click)="editTaskMode = false">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="text-dark font-weight-bold">Task</label>
+          <input class="form-control mb-2" type="text" name="title" [(ngModel)]="taskName" placeholder="Enter task..">
+          <label class="text-dark font-weight-bold">Date</label>
+          <div class="d-flex">
+            <input class="form-control" style="width: 150px;" [owlDateTime]="dt1" [owlDateTimeTrigger]="dt1" [min]="currentDate" [(ngModel)]="taskDate" placeholder="Choose date..">
+            <i class="material-icons" [owlDateTimeTrigger]="dt1" style="font-size: 35px;">date_range</i>
+          </div>
+          <owl-date-time [pickerType]="'calendar'" #dt1></owl-date-time>
+        </div>
+      </div>
+      <div class="card-footer bg-transparent">
+        <button class="btn btn-primary btn-xs ml-2 float-right" [disabled]="!taskName || !taskDate" (click)="addTask()">Save</button>
+        <button class="btn btn-secondary btn-xs float-right" (click)="resetInformation()">Cancel</button>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="editTaskMode">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="modal-title text-dark font-weight-bold">Edit Task</h6>
+        <button type="button" class="close" aria-label="Close" (click)="editTaskMode = false">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="text-dark font-weight-bold">Task</label>
+          <input class="form-control mb-2" type="text" name="title" [(ngModel)]="taskName" placeholder="Enter task..">
+          <label class="text-dark font-weight-bold">Date</label>
+          <div class="d-flex">
+            <input class="form-control" style="width: 150px;" [owlDateTime]="dt1" [owlDateTimeTrigger]="dt1" [min]="currentDate" [(ngModel)]="taskDate" placeholder="{{activeTask.date}}">
+            <i class="material-icons" [owlDateTimeTrigger]="dt1" style="font-size: 35px;">date_range</i>
+          </div>
+          <owl-date-time [pickerType]="'calendar'" #dt1></owl-date-time>
+        </div>
+      </div>
+      <div class="card-footer bg-transparent">
+        <button type="button" class="btn btn-info float-right ml-2" (click)="editTaskMode = false; updateTask();">Update</button>
+        <button type="button" class="btn btn-light float-right" (click)="editTaskMode = false; resetInformation();">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Task Modal -->
+<ng-template #deleteTaskModal let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h6 class="modal-title text-dark font-weight-bold">Confirmation Required</h6>
+    <button type="button" class="close" aria-label="Close" (click)="d( 'Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <form class="p-10">
+    <div class="modal-body">
+      <div class="form-group">
+        <p class="font-weight-bold">Are you sure you want to delete the following task?</p>
+        <p class="font-italic">{{activeTask.description}}</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-light" (click)="resetInformation(); c('Close click')">Close</button>
+      <button type="button" class="btn btn-danger" (click)="deleteTask(); c('Close click')">Delete</button>
+    </div>
+  </form>
+</ng-template>
+
